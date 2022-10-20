@@ -4,9 +4,14 @@ import java.net.Socket;
 import java.text.ParseException;
 
 public class Main {
+
     public static void main(String[] args) {
+        File saveData = new File("data.bin");
         FinanceManager financeManager = new FinanceManager();
         financeManager.loadCategories();
+        if (saveData.exists()) {
+            financeManager = FinanceManager.loadFromBinFile(saveData);
+        }
         try (ServerSocket serverSocket = new ServerSocket(8989);) {
             while (true) {
                 System.out.println("Server started");
@@ -19,6 +24,7 @@ public class Main {
                     String newPurchase = in.readLine();
                     financeManager.addingPurchase(newPurchase);
                     out.println(financeManager.getMaxCategory());
+                    financeManager.saveBin(saveData);
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
                 }
