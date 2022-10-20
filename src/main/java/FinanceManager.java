@@ -7,11 +7,11 @@ import java.util.*;
 public class FinanceManager implements Serializable {
     private static File fileCategories = new File("categories.tsv");
     private Map<String, Integer> sumPurchases = new HashMap<>();
+    private Map<String, Integer> sumPurchasesForYear = new HashMap<>();
+    private Map<String, Integer> sumPurchasesForMonth = new HashMap<>();
+    private Map<String, Integer> sumPurchasesForDay = new HashMap<>();
     private Map<String, String> categories = new HashMap<>();
-    private Map<String, Object> maxCategory = new HashMap<>();
-
-    public FinanceManager() {
-    }
+    private List<Purchase> purchaseList = new ArrayList<>();
 
     public void loadCategories() {
         try (Scanner sc = new Scanner(fileCategories)) {
@@ -31,28 +31,99 @@ public class FinanceManager implements Serializable {
     public void addingPurchase(String json) throws ParseException {
         Gson gson = new Gson();
         Purchase newPurchase = gson.fromJson(json, Purchase.class);
-        if (categories.containsKey(newPurchase.getTitle())) {
-            newPurchase.setCategory(categories.get(newPurchase.getTitle()));
-        } else {
-            newPurchase.setCategory("другое");
+        purchaseList.add(newPurchase);
+        for (Purchase i : purchaseList) {
+            if (categories.containsKey(i.getTitle())) {
+                i.setCategory(categories.get(i.getTitle()));
+            } else {
+                i.setCategory("другое");
+            }
+            if (sumPurchases.size() > 0) {
+                sumPurchases.put(i.getCategory(), i.getSum() + sumPurchases.get(i.getCategory()));
+            } else {
+                sumPurchases.put(i.getCategory(), i.getSum());
+            }
         }
-        int sum = sumPurchases.get(newPurchase.getCategory()) + newPurchase.getSum();
-        sumPurchases.put(newPurchase.getCategory(), sum);
+        for (Purchase i : purchaseList) {
+            if (i.getDate().getYear() == newPurchase.getDate().getYear()) {
+                if (sumPurchasesForYear.size() > 0) {
+                    sumPurchasesForYear.put(i.getCategory(), i.getSum() + sumPurchasesForYear.get(i.getCategory()));
+                } else {
+                    sumPurchasesForYear.put(i.getCategory(), i.getSum());
+                }
+            }
+            if (i.getDate().getYear() == newPurchase.getDate().getYear() &&
+                    i.getDate().getMonth() == newPurchase.getDate().getMonth()) {
+                if (sumPurchasesForMonth.size() > 0) {
+                    sumPurchasesForMonth.put(i.getCategory(), i.getSum() + sumPurchasesForMonth.get(i.getCategory()));
+                } else {
+                    sumPurchasesForMonth.put(i.getCategory(), i.getSum());
+                }
+            }
+            if (i.getDate().getYear() == newPurchase.getDate().getYear() &&
+                    i.getDate().getMonth() == newPurchase.getDate().getMonth() &&
+                    i.getDate().getDay() == newPurchase.getDate().getDay()) {
+                if (sumPurchasesForDay.size() > 0) {
+                    sumPurchasesForDay.put(i.getCategory(), i.getSum() + sumPurchasesForDay.get(i.getCategory()));
+                } else {
+                    sumPurchasesForDay.put(i.getCategory(), i.getSum());
+                }
+            }
+        }
     }
 
     public String getMaxCategory() {
-        String maxKey = sumPurchases.keySet().stream()
+        String keySumPurchases = sumPurchases.keySet().stream()
                 .max(Comparator.comparing(sumPurchases::get))
                 .orElse(null);
-        Map<String, Object> map = new HashMap<>();
-        map.put("sum", sumPurchases.get(maxKey));
-        map.put("category", maxKey);
-        maxCategory.put("maxCategory", map);
+        Map<String, Object> mapSumPurchases = new HashMap<>();
+        mapSumPurchases.put("sum", sumPurchases.get(keySumPurchases));
+        mapSumPurchases.put("category", keySumPurchases);
+        Map<String, Object> maxCategory = new HashMap<>();
+        maxCategory.put("maxCategory", mapSumPurchases);
+
+        String keySumPurchasesForYear = sumPurchasesForYear.keySet().stream()
+                .max(Comparator.comparing(sumPurchasesForYear::get))
+                .orElse(null);
+        Map<String, Object> mapSumPurchasesForYear = new HashMap<>();
+        mapSumPurchasesForYear.put("sum", sumPurchasesForYear.get(keySumPurchasesForYear));
+        mapSumPurchasesForYear.put("category", keySumPurchasesForYear);
+        Map<String, Object> maxYearCategory = new HashMap<>();
+        maxYearCategory.put("maxYearCategory", mapSumPurchasesForYear);
+
+        String keySumPurchasesForMonth = sumPurchasesForMonth.keySet().stream()
+                .max(Comparator.comparing(sumPurchasesForMonth::get))
+                .orElse(null);
+        Map<String, Object> mapSumPurchasesForMonth = new HashMap<>();
+        mapSumPurchasesForMonth.put("sum", sumPurchasesForMonth.get(keySumPurchasesForMonth));
+        mapSumPurchasesForMonth.put("category", keySumPurchasesForMonth);
+        Map<String, Object> maxMonthCategory = new HashMap<>();
+        maxMonthCategory.put("maxMonthCategory", mapSumPurchasesForMonth);
+
+        String keySumPurchasesForDay = sumPurchasesForDay.keySet().stream()
+                .max(Comparator.comparing(sumPurchasesForDay::get))
+                .orElse(null);
+        Map<String, Object> mapSumPurchasesForDay = new HashMap<>();
+        mapSumPurchasesForDay.put("sum", sumPurchasesForDay.get(keySumPurchasesForDay));
+        mapSumPurchasesForDay.put("category", keySumPurchasesForDay);
+        Map<String, Object> maxDayCategory = new HashMap<>();
+        maxDayCategory.put("maxDayCategory", mapSumPurchasesForDay);
+
+        List<Map<String, Object>> json = new ArrayList<>();
+        json.add(maxCategory);
+        json.add(maxYearCategory);
+        json.add(maxMonthCategory);
+        json.add(maxDayCategory);
+
         Gson gson = new Gson();
-        return gson.toJson(maxCategory);
+        return gson.toJson(json);
     }
 
     public void saveBin(File binFile) throws IOException {
+        sumPurchases.clear();
+        sumPurchasesForYear.clear();
+        sumPurchasesForMonth.clear();
+        sumPurchasesForDay.clear();
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(binFile))) {
             out.writeObject(this);
         }
