@@ -1,11 +1,10 @@
 import com.google.gson.Gson;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.util.*;
 
-public class FinanceManager {
+public class FinanceManager implements Serializable {
     private static File fileCategories = new File("categories.tsv");
     private Map<String, Integer> sumPurchases = new HashMap<>();
     private Map<String, String> categories = new HashMap<>();
@@ -51,5 +50,19 @@ public class FinanceManager {
         maxCategory.put("maxCategory", map);
         Gson gson = new Gson();
         return gson.toJson(maxCategory);
+    }
+
+    public void saveBin(File binFile) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(binFile))) {
+            out.writeObject(this);
+        }
+    }
+
+    public static FinanceManager loadFromBinFile(File binFile) {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(binFile))) {
+            return (FinanceManager) in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
