@@ -32,6 +32,10 @@ public class FinanceManager implements Serializable {
         Gson gson = new Gson();
         Purchase newPurchase = gson.fromJson(json, Purchase.class);
         purchaseList.add(newPurchase);
+        sumPurchases.clear();
+        sumPurchasesForYear.clear();
+        sumPurchasesForMonth.clear();
+        sumPurchasesForDay.clear();
         for (Purchase i : purchaseList) {
             if (categories.containsKey(i.getTitle())) {
                 i.setCategory(categories.get(i.getTitle()));
@@ -47,7 +51,8 @@ public class FinanceManager implements Serializable {
         for (Purchase i : purchaseList) {
             if (i.getDate().getYear() == newPurchase.getDate().getYear()) {
                 if (sumPurchasesForYear.size() > 0) {
-                    sumPurchasesForYear.put(i.getCategory(), i.getSum() + sumPurchasesForYear.get(i.getCategory()));
+                    sumPurchasesForYear.put(i.getCategory(), i.getSum()
+                            + sumPurchasesForYear.get(i.getCategory()));
                 } else {
                     sumPurchasesForYear.put(i.getCategory(), i.getSum());
                 }
@@ -55,7 +60,8 @@ public class FinanceManager implements Serializable {
             if (i.getDate().getYear() == newPurchase.getDate().getYear() &&
                     i.getDate().getMonth() == newPurchase.getDate().getMonth()) {
                 if (sumPurchasesForMonth.size() > 0) {
-                    sumPurchasesForMonth.put(i.getCategory(), i.getSum() + sumPurchasesForMonth.get(i.getCategory()));
+                    sumPurchasesForMonth.put(i.getCategory(), i.getSum()
+                            + sumPurchasesForMonth.get(i.getCategory()));
                 } else {
                     sumPurchasesForMonth.put(i.getCategory(), i.getSum());
                 }
@@ -64,7 +70,8 @@ public class FinanceManager implements Serializable {
                     i.getDate().getMonth() == newPurchase.getDate().getMonth() &&
                     i.getDate().getDay() == newPurchase.getDate().getDay()) {
                 if (sumPurchasesForDay.size() > 0) {
-                    sumPurchasesForDay.put(i.getCategory(), i.getSum() + sumPurchasesForDay.get(i.getCategory()));
+                    sumPurchasesForDay.put(i.getCategory(), i.getSum()
+                            + sumPurchasesForDay.get(i.getCategory()));
                 } else {
                     sumPurchasesForDay.put(i.getCategory(), i.getSum());
                 }
@@ -120,10 +127,6 @@ public class FinanceManager implements Serializable {
     }
 
     public void saveBin(File binFile) throws IOException {
-        sumPurchases.clear();
-        sumPurchasesForYear.clear();
-        sumPurchasesForMonth.clear();
-        sumPurchasesForDay.clear();
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(binFile))) {
             out.writeObject(this);
         }

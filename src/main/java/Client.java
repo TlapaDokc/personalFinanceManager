@@ -15,7 +15,7 @@ public class Client {
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ) {
-            out.println("{\"title\": \"мыло\", \"date\": \"2021.03.01\", \"sum\": 30}");
+            out.println("{\"title\": \"мыло\", \"date\": \"2020.04.01\", \"sum\": 50}");
             System.out.println(in.readLine());
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
