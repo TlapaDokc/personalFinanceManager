@@ -20,10 +20,9 @@ import java.util.stream.Stream;
 public class FinanceManagerTest {
     private static File fileCategoriesTest = new File("categoriesByTests.tsv");
     private Map<String, Integer> sumPurchasesTest = new HashMap<>();
-    Map<String, Integer> sumPurchases = new HashMap<>();
+    private Map<String, Integer> sumPurchases = new HashMap<>();
     private Map<String, String> categoriesTest = new HashMap<>();
-    Map<String, String> categories = new HashMap<>();
-    private Map<String, Object> maxCategoryTest = new HashMap<>();
+    private Map<String, String> categories = new HashMap<>();
 
     @BeforeEach
     void setUp() {
@@ -65,14 +64,26 @@ public class FinanceManagerTest {
     void addingPurchaseTest() throws ParseException {
         String jsonTest = "{\"title\": \"сосиска\", \"date\": \"2022.02.08\", \"sum\": 500}";
         Gson gson = new Gson();
-        Purchase newPurchaseTest = gson.fromJson(jsonTest, Purchase.class);
-        if (categories.containsKey(newPurchaseTest.getTitle())) {
-            newPurchaseTest.setCategory(categories.get(newPurchaseTest.getTitle()));
-        } else {
-            newPurchaseTest.setCategory("другое");
+        Purchase newPurchase = gson.fromJson(json, Purchase.class);
+        datePurchase = newPurchase.getDate();
+        purchaseList.add(newPurchase);
+        sumPurchases.clear();
+        sumPurchasesForYear.clear();
+        sumPurchasesForMonth.clear();
+        sumPurchasesForDay.clear();
+        for (Purchase i : purchaseList) {
+            if (categories.containsKey(i.getTitle())) {
+                i.setCategory(categories.get(i.getTitle()));
+
+            } else {
+                i.setCategory("другое");
+            }
+            if (sumPurchases.containsKey(i.getCategory())) {
+                sumPurchases.put(i.getCategory(), i.getSum() + sumPurchases.get(i.getCategory()));
+            } else {
+                sumPurchases.put(i.getCategory(), i.getSum());
+            }
         }
-        int sum = sumPurchases.get(newPurchaseTest.getCategory()) + newPurchaseTest.getSum();
-        sumPurchases.put(newPurchaseTest.getCategory(), sum);
         Map<String, Integer> expectedSumPurchases = new HashMap<>();
         expectedSumPurchases.put("одежда", 0);
         expectedSumPurchases.put("еда", 500);

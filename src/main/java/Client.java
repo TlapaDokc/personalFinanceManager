@@ -1,4 +1,6 @@
 
+import com.google.gson.Gson;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,12 +13,13 @@ public class Client {
     private static final String host = "127.0.0.1";
 
     public static void main(String[] args) {
+        Gson gson = new Gson();
         try (Socket clientSocket = new Socket(host, port);
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ) {
-            out.println("{\"title\": \"мыло\", \"date\": \"2020.04.01\", \"sum\": 50}");
-            System.out.println(in.readLine());
+            out.println("{\"title\": \"мыло\", \"date\": \"2021.07.03\", \"sum\": 500}");
+            System.out.println(gson.fromJson(in.readLine(), String.class));
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
