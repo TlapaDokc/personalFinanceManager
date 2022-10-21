@@ -23,7 +23,6 @@ public class FinanceManagerTest {
     Map<String, Integer> sumPurchases = new HashMap<>();
     private Map<String, String> categoriesTest = new HashMap<>();
     Map<String, String> categories = new HashMap<>();
-    private Map<String, Object> maxCategoryTest = new HashMap<>();
 
     @BeforeEach
     void setUp() {
@@ -90,27 +89,53 @@ public class FinanceManagerTest {
         String maxKey = sumPurchases.keySet().stream()
                 .max(Comparator.comparing(sumPurchases::get))
                 .orElse(null);
-        Map<String, Object> map = new HashMap<>();
-        map.put("sum", sumPurchases.get(maxKey));
-        map.put("category", maxKey);
-        maxCategoryTest.put("maxCategory", map);
+        String maxCategory = "{\n" +
+                "  \"maxCategory\": {\n" +
+                "    \"category\": \"" + maxKey + "\",\n" +
+                "    \"sum\": " + sumPurchases.get(maxKey) + "\n" +
+                "  }\n" +
+                "}";
         Gson gson = new Gson();
-        String result = gson.toJson(maxCategoryTest);
-        Assertions.assertEquals(expectedResult, result);
+        String result = gson.toJson(maxCategory);
+        Assertions.assertEquals(expectedResult, gson.fromJson(result, String.class));
     }
 
     private static Stream<Arguments> arguments() {
         return Stream.of(
                 Arguments.of("одежда", 500,
-                        "{\"maxCategory\":{\"sum\":500,\"category\":\"одежда\"}}"),
+                        "{\n" +
+                                "  \"maxCategory\": {\n" +
+                                "    \"category\": \"одежда\",\n" +
+                                "    \"sum\": 500\n" +
+                                "  }\n" +
+                                "}"),
                 Arguments.of("еда", 400,
-                        "{\"maxCategory\":{\"sum\":400,\"category\":\"еда\"}}"),
+                        "{\n" +
+                                "  \"maxCategory\": {\n" +
+                                "    \"category\": \"еда\",\n" +
+                                "    \"sum\": 400\n" +
+                                "  }\n" +
+                                "}"),
                 Arguments.of("быт", 600,
-                        "{\"maxCategory\":{\"sum\":600,\"category\":\"быт\"}}"),
+                        "{\n" +
+                                "  \"maxCategory\": {\n" +
+                                "    \"category\": \"быт\",\n" +
+                                "    \"sum\": 600\n" +
+                                "  }\n" +
+                                "}"),
                 Arguments.of("гаджеты", 800,
-                        "{\"maxCategory\":{\"sum\":800,\"category\":\"гаджеты\"}}"),
+                        "{\n" +
+                                "  \"maxCategory\": {\n" +
+                                "    \"category\": \"гаджеты\",\n" +
+                                "    \"sum\": 800\n" +
+                                "  }\n" +
+                                "}"),
                 Arguments.of("другое", 400,
-                        "{\"maxCategory\":{\"sum\":400,\"category\":\"другое\"}}")
-        );
+                        "{\n" +
+                                "  \"maxCategory\": {\n" +
+                                "    \"category\": \"другое\",\n" +
+                                "    \"sum\": 400\n" +
+                                "  }\n" +
+                                "}"));
     }
 }

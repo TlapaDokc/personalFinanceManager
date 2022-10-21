@@ -9,7 +9,6 @@ public class FinanceManager {
     private static File fileCategories = new File("categories.tsv");
     private Map<String, Integer> sumPurchases = new HashMap<>();
     private Map<String, String> categories = new HashMap<>();
-    private Map<String, Object> maxCategory = new HashMap<>();
 
     public FinanceManager() {
     }
@@ -45,10 +44,12 @@ public class FinanceManager {
         String maxKey = sumPurchases.keySet().stream()
                 .max(Comparator.comparing(sumPurchases::get))
                 .orElse(null);
-        Map<String, Object> map = new HashMap<>();
-        map.put("sum", sumPurchases.get(maxKey));
-        map.put("category", maxKey);
-        maxCategory.put("maxCategory", map);
+        String maxCategory = "{\n" +
+                "  \"maxCategory\": {\n" +
+                "    \"category\": \"" + maxKey + "\",\n" +
+                "    \"sum\": " + sumPurchases.get(maxKey) + "\n" +
+                "  }\n" +
+                "}";
         Gson gson = new Gson();
         return gson.toJson(maxCategory);
     }
