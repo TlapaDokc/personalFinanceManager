@@ -20,9 +20,9 @@ import java.util.stream.Stream;
 public class FinanceManagerTest {
     private static File fileCategoriesTest = new File("categoriesByTests.tsv");
     private Map<String, Integer> sumPurchasesTest = new HashMap<>();
-    Map<String, Integer> sumPurchases = new HashMap<>();
+    private Map<String, Integer> sumPurchases = new HashMap<>();
     private Map<String, String> categoriesTest = new HashMap<>();
-    Map<String, String> categories = new HashMap<>();
+    private Map<String, String> categories = new HashMap<>();
 
     @BeforeEach
     void setUp() {
