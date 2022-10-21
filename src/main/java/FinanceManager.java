@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.io.*;
 import java.text.ParseException;
@@ -83,47 +84,36 @@ public class FinanceManager implements Serializable {
         String keySumPurchases = sumPurchases.keySet().stream()
                 .max(Comparator.comparing(sumPurchases::get))
                 .orElse(null);
-        Map<String, Object> mapSumPurchases = new HashMap<>();
-        mapSumPurchases.put("sum", sumPurchases.get(keySumPurchases));
-        mapSumPurchases.put("category", keySumPurchases);
-        Map<String, Object> maxCategory = new HashMap<>();
-        maxCategory.put("maxCategory", mapSumPurchases);
+        String maxCategory = "{\"maxCategory\":{\"sum\":"
+                + sumPurchases.get(keySumPurchases)
+                + ",\"category\":\"" + keySumPurchases + "\"}},\n";
 
         String keySumPurchasesForYear = sumPurchasesForYear.keySet().stream()
                 .max(Comparator.comparing(sumPurchasesForYear::get))
                 .orElse(null);
-        Map<String, Object> mapSumPurchasesForYear = new HashMap<>();
-        mapSumPurchasesForYear.put("sum", sumPurchasesForYear.get(keySumPurchasesForYear));
-        mapSumPurchasesForYear.put("category", keySumPurchasesForYear);
-        Map<String, Object> maxYearCategory = new HashMap<>();
-        maxYearCategory.put("maxYearCategory", mapSumPurchasesForYear);
+        String maxYearCategory = "{\"maxYearCategory\":{\"sum\":"
+                + sumPurchasesForYear.get(keySumPurchasesForYear)
+                + ",\"category\":\"" + keySumPurchasesForYear + "\"}},\n";
 
         String keySumPurchasesForMonth = sumPurchasesForMonth.keySet().stream()
                 .max(Comparator.comparing(sumPurchasesForMonth::get))
                 .orElse(null);
-        Map<String, Object> mapSumPurchasesForMonth = new HashMap<>();
-        mapSumPurchasesForMonth.put("sum", sumPurchasesForMonth.get(keySumPurchasesForMonth));
-        mapSumPurchasesForMonth.put("category", keySumPurchasesForMonth);
-        Map<String, Object> maxMonthCategory = new HashMap<>();
-        maxMonthCategory.put("maxMonthCategory", mapSumPurchasesForMonth);
+        String maxMonthCategory = "{\"maxMonthCategory\":{\"sum\":"
+                + sumPurchasesForMonth.get(keySumPurchasesForMonth)
+                + ",\"category\":\"" + keySumPurchasesForMonth + "\"}},\n";
 
         String keySumPurchasesForDay = sumPurchasesForDay.keySet().stream()
                 .max(Comparator.comparing(sumPurchasesForDay::get))
                 .orElse(null);
-        Map<String, Object> mapSumPurchasesForDay = new HashMap<>();
-        mapSumPurchasesForDay.put("sum", sumPurchasesForDay.get(keySumPurchasesForDay));
-        mapSumPurchasesForDay.put("category", keySumPurchasesForDay);
-        Map<String, Object> maxDayCategory = new HashMap<>();
-        maxDayCategory.put("maxDayCategory", mapSumPurchasesForDay);
+        String maxDayCategory = "{\"maxDayCategory\":{\"sum\":"
+                + sumPurchasesForDay.get(keySumPurchasesForDay)
+                + ",\"category\":\"" + keySumPurchasesForDay + "\"}},\n";
+        System.out.println(maxCategory +  maxYearCategory
+                + maxMonthCategory + maxDayCategory);
 
-        List<Map<String, Object>> json = new ArrayList<>();
-        json.add(maxCategory);
-        json.add(maxYearCategory);
-        json.add(maxMonthCategory);
-        json.add(maxDayCategory);
-
-        Gson gson = new Gson();
-        return gson.toJson(json);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.toJson(maxCategory +  maxYearCategory
+                + maxMonthCategory + maxDayCategory);
     }
 
     public void saveBin(File binFile) throws IOException {
