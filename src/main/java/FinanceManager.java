@@ -19,11 +19,7 @@ public class FinanceManager implements Serializable {
             while (sc.hasNextLine()) {
                 String[] array = sc.nextLine().split("\t");
                 categories.put(array[0], array[1]);
-                if (!sumPurchases.containsKey(array[1])) {
-                    sumPurchases.put(array[1], 0);
-                }
             }
-            sumPurchases.put("другое", 0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

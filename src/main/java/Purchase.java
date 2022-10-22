@@ -33,5 +33,16 @@ public class Purchase implements Serializable {
         this.category = category;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this.category.equals(((Purchase) o).category)
+                && this.title.equals(((Purchase) o).title)
+                && this.date.equals(((Purchase) o).date)
+                && this.sum == ((Purchase) o).sum) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 

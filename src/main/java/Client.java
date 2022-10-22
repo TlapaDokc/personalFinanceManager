@@ -18,7 +18,7 @@ public class Client {
              PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ) {
-            out.println("{\"title\": \"мыло\", \"date\": \"2021.07.03\", \"sum\": 500}");
+            out.println("{\"title\": \"булка\", \"date\": \"2021.04.03\", \"sum\": 3000}");
             System.out.println(gson.fromJson(in.readLine(), String.class));
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
