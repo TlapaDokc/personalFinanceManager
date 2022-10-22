@@ -25,6 +25,7 @@ public class Main {
                     System.out.println("New connection accepted");
                     String newPurchase = in.readLine();
                     financeManager.addingPurchase(newPurchase);
+                    financeManager.sortByDate();
                     out.println(financeManager.getMaxCategory());
                     financeManager.saveBin(saveData);
                 } catch (ParseException e) {

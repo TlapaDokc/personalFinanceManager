@@ -6,10 +6,11 @@ import java.util.*;
 
 public class FinanceManager implements Serializable {
     private static File fileCategories = new File("categories.tsv");
-    private Map<String, Integer> sumPurchases = new HashMap<>();
-    private Map<String, Integer> sumPurchasesForYear = new HashMap<>();
-    private Map<String, Integer> sumPurchasesForMonth = new HashMap<>();
-    private Map<String, Integer> sumPurchasesForDay = new HashMap<>();
+    private static Map<String, Integer> sumPurchases = new HashMap<>();
+    private static Map<String, Integer> sumPurchasesForYear = new HashMap<>();
+    private static Map<String, Integer> sumPurchasesForMonth = new HashMap<>();
+    private static Map<String, Integer> sumPurchasesForDay = new HashMap<>();
+    private Date datePurchase;
     private Map<String, String> categories = new HashMap<>();
     private List<Purchase> purchaseList = new ArrayList<>();
 
@@ -18,11 +19,7 @@ public class FinanceManager implements Serializable {
             while (sc.hasNextLine()) {
                 String[] array = sc.nextLine().split("\t");
                 categories.put(array[0], array[1]);
-                if (!sumPurchases.containsKey(array[1])) {
-                    sumPurchases.put(array[1], 0);
-                }
             }
-            sumPurchases.put("другое", 0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -31,6 +28,7 @@ public class FinanceManager implements Serializable {
     public void addingPurchase(String json) throws ParseException {
         Gson gson = new Gson();
         Purchase newPurchase = gson.fromJson(json, Purchase.class);
+        datePurchase = newPurchase.getDate();
         purchaseList.add(newPurchase);
         sumPurchases.clear();
         sumPurchasesForYear.clear();
@@ -39,37 +37,41 @@ public class FinanceManager implements Serializable {
         for (Purchase i : purchaseList) {
             if (categories.containsKey(i.getTitle())) {
                 i.setCategory(categories.get(i.getTitle()));
+
             } else {
                 i.setCategory("другое");
             }
-            if (sumPurchases.size() > 0) {
+            if (sumPurchases.containsKey(i.getCategory())) {
                 sumPurchases.put(i.getCategory(), i.getSum() + sumPurchases.get(i.getCategory()));
             } else {
                 sumPurchases.put(i.getCategory(), i.getSum());
             }
         }
+    }
+
+    public void sortByDate() throws ParseException {
         for (Purchase i : purchaseList) {
-            if (i.getDate().getYear() == newPurchase.getDate().getYear()) {
-                if (sumPurchasesForYear.size() > 0) {
+            if (i.getDate().getYear() == datePurchase.getYear()) {
+                if (sumPurchasesForYear.containsKey(i.getCategory())) {
                     sumPurchasesForYear.put(i.getCategory(), i.getSum()
                             + sumPurchasesForYear.get(i.getCategory()));
                 } else {
                     sumPurchasesForYear.put(i.getCategory(), i.getSum());
                 }
             }
-            if (i.getDate().getYear() == newPurchase.getDate().getYear() &&
-                    i.getDate().getMonth() == newPurchase.getDate().getMonth()) {
-                if (sumPurchasesForMonth.size() > 0) {
+            if (i.getDate().getYear() == datePurchase.getYear() &&
+                    i.getDate().getMonth() == datePurchase.getMonth()) {
+                if (sumPurchasesForMonth.containsKey(i.getCategory())) {
                     sumPurchasesForMonth.put(i.getCategory(), i.getSum()
                             + sumPurchasesForMonth.get(i.getCategory()));
                 } else {
                     sumPurchasesForMonth.put(i.getCategory(), i.getSum());
                 }
             }
-            if (i.getDate().getYear() == newPurchase.getDate().getYear() &&
-                    i.getDate().getMonth() == newPurchase.getDate().getMonth() &&
-                    i.getDate().getDay() == newPurchase.getDate().getDay()) {
-                if (sumPurchasesForDay.size() > 0) {
+            if (i.getDate().getYear() == datePurchase.getYear() &&
+                    i.getDate().getMonth() == datePurchase.getMonth() &&
+                    i.getDate().getDay() == datePurchase.getDay()) {
+                if (sumPurchasesForDay.containsKey(i.getCategory())) {
                     sumPurchasesForDay.put(i.getCategory(), i.getSum()
                             + sumPurchasesForDay.get(i.getCategory()));
                 } else {
@@ -80,50 +82,52 @@ public class FinanceManager implements Serializable {
     }
 
     public String getMaxCategory() {
+        String maxYearCategory = "";
+        String maxMonthCategory = "";
+        String maxDayCategory = "";
         String keySumPurchases = sumPurchases.keySet().stream()
                 .max(Comparator.comparing(sumPurchases::get))
                 .orElse(null);
-        Map<String, Object> mapSumPurchases = new HashMap<>();
-        mapSumPurchases.put("sum", sumPurchases.get(keySumPurchases));
-        mapSumPurchases.put("category", keySumPurchases);
-        Map<String, Object> maxCategory = new HashMap<>();
-        maxCategory.put("maxCategory", mapSumPurchases);
+        String maxCategory = "{\n" +
+                "  \"maxCategory\": {\n" +
+                "    \"category\": \"" + keySumPurchases + "\",\n" +
+                "    \"sum\": " + sumPurchases.get(keySumPurchases) + "\n" +
+                "  },\n";
 
-        String keySumPurchasesForYear = sumPurchasesForYear.keySet().stream()
-                .max(Comparator.comparing(sumPurchasesForYear::get))
-                .orElse(null);
-        Map<String, Object> mapSumPurchasesForYear = new HashMap<>();
-        mapSumPurchasesForYear.put("sum", sumPurchasesForYear.get(keySumPurchasesForYear));
-        mapSumPurchasesForYear.put("category", keySumPurchasesForYear);
-        Map<String, Object> maxYearCategory = new HashMap<>();
-        maxYearCategory.put("maxYearCategory", mapSumPurchasesForYear);
+        if (!sumPurchasesForYear.isEmpty()) {
+            String keySumPurchasesForYear = sumPurchasesForYear.keySet().stream()
+                    .max(Comparator.comparing(sumPurchasesForYear::get))
+                    .orElse(null);
+            maxYearCategory = "  \"maxYearCategory\": {\n" +
+                    "    \"category\": \"" + keySumPurchasesForYear + "\",\n" +
+                    "    \"sum\": " + sumPurchasesForYear.get(keySumPurchasesForYear) + "\n" +
+                    "  },\n";
+        }
 
-        String keySumPurchasesForMonth = sumPurchasesForMonth.keySet().stream()
-                .max(Comparator.comparing(sumPurchasesForMonth::get))
-                .orElse(null);
-        Map<String, Object> mapSumPurchasesForMonth = new HashMap<>();
-        mapSumPurchasesForMonth.put("sum", sumPurchasesForMonth.get(keySumPurchasesForMonth));
-        mapSumPurchasesForMonth.put("category", keySumPurchasesForMonth);
-        Map<String, Object> maxMonthCategory = new HashMap<>();
-        maxMonthCategory.put("maxMonthCategory", mapSumPurchasesForMonth);
+        if (!sumPurchasesForMonth.isEmpty()) {
+            String keySumPurchasesForMonth = sumPurchasesForMonth.keySet().stream()
+                    .max(Comparator.comparing(sumPurchasesForMonth::get))
+                    .orElse(null);
+            maxMonthCategory = "  \"maxMonthCategory\": {\n" +
+                    "    \"category\": \"" + keySumPurchasesForMonth + "\",\n" +
+                    "    \"sum\": " + sumPurchasesForMonth.get(keySumPurchasesForMonth) + "\n" +
+                    "  },\n";
+        }
 
-        String keySumPurchasesForDay = sumPurchasesForDay.keySet().stream()
-                .max(Comparator.comparing(sumPurchasesForDay::get))
-                .orElse(null);
-        Map<String, Object> mapSumPurchasesForDay = new HashMap<>();
-        mapSumPurchasesForDay.put("sum", sumPurchasesForDay.get(keySumPurchasesForDay));
-        mapSumPurchasesForDay.put("category", keySumPurchasesForDay);
-        Map<String, Object> maxDayCategory = new HashMap<>();
-        maxDayCategory.put("maxDayCategory", mapSumPurchasesForDay);
-
-        List<Map<String, Object>> json = new ArrayList<>();
-        json.add(maxCategory);
-        json.add(maxYearCategory);
-        json.add(maxMonthCategory);
-        json.add(maxDayCategory);
+        if (!sumPurchasesForDay.isEmpty()) {
+            String keySumPurchasesForDay = sumPurchasesForDay.keySet().stream()
+                    .max(Comparator.comparing(sumPurchasesForDay::get))
+                    .orElse(null);
+            maxDayCategory = "  \"maxDayCategory\": {\n" +
+                    "    \"category\": \"" + keySumPurchasesForDay + "\",\n" +
+                    "    \"sum\": " + sumPurchasesForDay.get(keySumPurchasesForDay) + "\n" +
+                    "  },\n" +
+                    "}\n";
+        }
 
         Gson gson = new Gson();
-        return gson.toJson(json);
+        return gson.toJson(maxCategory + maxYearCategory
+                + maxMonthCategory + maxDayCategory);
     }
 
     public void saveBin(File binFile) throws IOException {
