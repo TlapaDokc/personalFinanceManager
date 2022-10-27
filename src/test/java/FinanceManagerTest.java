@@ -155,55 +155,35 @@ public class FinanceManagerTest {
         sumPurchasesForYearTest.put("одежда", 500);
         sumPurchasesForMonthTest.put("еда", 300);
         sumPurchasesForDayTest.put("еда", 300);
-        String maxYearCategory = "";
-        String maxMonthCategory = "";
-        String maxDayCategory = "";
         String keySumPurchases = sumPurchasesTest.keySet().stream()
                 .max(Comparator.comparing(sumPurchasesTest::get))
                 .orElse(null);
-        String maxCategory = "{\n" +
-                "  \"maxCategory\": {\n" +
-                "    \"category\": \"" + keySumPurchases + "\",\n" +
-                "    \"sum\": " + sumPurchasesTest.get(keySumPurchases) + "\n" +
-                "  },\n";
-
+        MaxCategory maxCategoryTest = new MaxCategory(keySumPurchases, sumPurchasesTest.get(keySumPurchases));
         if (!sumPurchasesForYearTest.isEmpty()) {
             String keySumPurchasesForYear = sumPurchasesForYearTest.keySet().stream()
                     .max(Comparator.comparing(sumPurchasesForYearTest::get))
                     .orElse(null);
-            maxYearCategory = "  \"maxYearCategory\": {\n" +
-                    "    \"category\": \"" + keySumPurchasesForYear + "\",\n" +
-                    "    \"sum\": " + sumPurchasesForYearTest.get(keySumPurchasesForYear) + "\n" +
-                    "  },\n";
+            maxCategoryTest.setMaxYearCategory(keySumPurchasesForYear, sumPurchasesForYearTest.get(keySumPurchasesForYear));
         }
-
         if (!sumPurchasesForMonthTest.isEmpty()) {
             String keySumPurchasesForMonth = sumPurchasesForMonthTest.keySet().stream()
                     .max(Comparator.comparing(sumPurchasesForMonthTest::get))
                     .orElse(null);
-            maxMonthCategory = "  \"maxMonthCategory\": {\n" +
-                    "    \"category\": \"" + keySumPurchasesForMonth + "\",\n" +
-                    "    \"sum\": " + sumPurchasesForMonthTest.get(keySumPurchasesForMonth) + "\n" +
-                    "  },\n";
+            maxCategoryTest.setMaxMonthCategory(keySumPurchasesForMonth, sumPurchasesForMonthTest.get(keySumPurchasesForMonth));
         }
-
         if (!sumPurchasesForDayTest.isEmpty()) {
             String keySumPurchasesForDay = sumPurchasesForDayTest.keySet().stream()
                     .max(Comparator.comparing(sumPurchasesForDayTest::get))
                     .orElse(null);
-            maxDayCategory = "  \"maxDayCategory\": {\n" +
-                    "    \"category\": \"" + keySumPurchasesForDay + "\",\n" +
-                    "    \"sum\": " + sumPurchasesForDayTest.get(keySumPurchasesForDay) + "\n" +
-                    "  },\n" +
-                    "}\n";
+            maxCategoryTest.setMaxDayCategory(keySumPurchasesForDay, sumPurchasesForDayTest.get(keySumPurchasesForDay));
         }
-        String result = gson.toJson(maxCategory + maxYearCategory
-                + maxMonthCategory + maxDayCategory);
-        String resultExpected = gson.toJson("{\n  \"maxCategory\": {\n    \"category\": \"одежда\",\n    " +
-                "\"sum\": 500\n  },\n  \"maxYearCategory\": {\n    \"category\": \"одежда\",\n    " +
-                "\"sum\": 500\n  },\n  \"maxMonthCategory\": {\n    \"category\": \"еда\",\n    " +
-                "\"sum\": 300\n  },\n  \"maxDayCategory\": {\n    \"category\": \"еда\",\n    " +
-                "\"sum\": 300\n  },\n}\n");
+        Gson gson = new Gson();
+        String result = gson.toJson(maxCategoryTest);
+        MaxCategory maxCategoryExpected = new MaxCategory("одежда", 500);
+        maxCategoryExpected.setMaxYearCategory("одежда", 500);
+        maxCategoryExpected.setMaxMonthCategory("еда", 300);
+        maxCategoryExpected.setMaxDayCategory("еда", 300);
+        String resultExpected = gson.toJson(maxCategoryExpected);
         Assertions.assertEquals(resultExpected, result);
     }
 }

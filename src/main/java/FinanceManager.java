@@ -82,52 +82,30 @@ public class FinanceManager implements Serializable {
     }
 
     public String getMaxCategory() {
-        String maxYearCategory = "";
-        String maxMonthCategory = "";
-        String maxDayCategory = "";
         String keySumPurchases = sumPurchases.keySet().stream()
                 .max(Comparator.comparing(sumPurchases::get))
                 .orElse(null);
-        String maxCategory = "{\n" +
-                "  \"maxCategory\": {\n" +
-                "    \"category\": \"" + keySumPurchases + "\",\n" +
-                "    \"sum\": " + sumPurchases.get(keySumPurchases) + "\n" +
-                "  },\n";
-
+        MaxCategory maxCategory = new MaxCategory(keySumPurchases, sumPurchases.get(keySumPurchases));
         if (!sumPurchasesForYear.isEmpty()) {
             String keySumPurchasesForYear = sumPurchasesForYear.keySet().stream()
                     .max(Comparator.comparing(sumPurchasesForYear::get))
                     .orElse(null);
-            maxYearCategory = "  \"maxYearCategory\": {\n" +
-                    "    \"category\": \"" + keySumPurchasesForYear + "\",\n" +
-                    "    \"sum\": " + sumPurchasesForYear.get(keySumPurchasesForYear) + "\n" +
-                    "  },\n";
+            maxCategory.setMaxYearCategory(keySumPurchasesForYear, sumPurchasesForYear.get(keySumPurchasesForYear));
         }
-
         if (!sumPurchasesForMonth.isEmpty()) {
             String keySumPurchasesForMonth = sumPurchasesForMonth.keySet().stream()
                     .max(Comparator.comparing(sumPurchasesForMonth::get))
                     .orElse(null);
-            maxMonthCategory = "  \"maxMonthCategory\": {\n" +
-                    "    \"category\": \"" + keySumPurchasesForMonth + "\",\n" +
-                    "    \"sum\": " + sumPurchasesForMonth.get(keySumPurchasesForMonth) + "\n" +
-                    "  },\n";
+            maxCategory.setMaxMonthCategory(keySumPurchasesForMonth, sumPurchasesForMonth.get(keySumPurchasesForMonth));
         }
-
         if (!sumPurchasesForDay.isEmpty()) {
             String keySumPurchasesForDay = sumPurchasesForDay.keySet().stream()
                     .max(Comparator.comparing(sumPurchasesForDay::get))
                     .orElse(null);
-            maxDayCategory = "  \"maxDayCategory\": {\n" +
-                    "    \"category\": \"" + keySumPurchasesForDay + "\",\n" +
-                    "    \"sum\": " + sumPurchasesForDay.get(keySumPurchasesForDay) + "\n" +
-                    "  },\n" +
-                    "}\n";
+            maxCategory.setMaxDayCategory(keySumPurchasesForDay, sumPurchasesForDay.get(keySumPurchasesForDay));
         }
-
         Gson gson = new Gson();
-        return gson.toJson(maxCategory + maxYearCategory
-                + maxMonthCategory + maxDayCategory);
+        return gson.toJson(maxCategory);
     }
 
     public void saveBin(File binFile) throws IOException {
