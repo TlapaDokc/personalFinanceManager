@@ -43,12 +43,7 @@ public class FinanceManager implements Serializable {
         String maxKey = sumPurchases.keySet().stream()
                 .max(Comparator.comparing(sumPurchases::get))
                 .orElse(null);
-        String maxCategory = "{\n" +
-                "  \"maxCategory\": {\n" +
-                "    \"category\": \"" + maxKey + "\",\n" +
-                "    \"sum\": " + sumPurchases.get(maxKey) + "\n" +
-                "  }\n" +
-                "}";
+        MaxCategory maxCategory = new MaxCategory(maxKey, sumPurchases.get(maxKey));
         Gson gson = new Gson();
         return gson.toJson(maxCategory);
     }

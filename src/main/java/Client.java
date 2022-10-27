@@ -19,7 +19,7 @@ public class Client {
              BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         ) {
             out.println("{\"title\": \"тапки\", \"date\": \"2022.02.08\", \"sum\": 500}");
-            System.out.println(gson.fromJson(in.readLine(), String.class));
+            System.out.println(in.readLine());
         } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
