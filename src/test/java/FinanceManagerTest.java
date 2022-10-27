@@ -89,15 +89,10 @@ public class FinanceManagerTest {
         String maxKey = sumPurchases.keySet().stream()
                 .max(Comparator.comparing(sumPurchases::get))
                 .orElse(null);
-        String maxCategory = "{\n" +
-                "  \"maxCategory\": {\n" +
-                "    \"category\": \"" + maxKey + "\",\n" +
-                "    \"sum\": " + sumPurchases.get(maxKey) + "\n" +
-                "  }\n" +
-                "}";
+        MaxCategory maxCategoryTest = new MaxCategory(maxKey, sumPurchases.get(maxKey));
         Gson gson = new Gson();
-        String result = gson.toJson(maxCategory);
-        Assertions.assertEquals(expectedResult, gson.fromJson(result, String.class));
+        String result = gson.toJson(maxCategoryTest);
+        Assertions.assertEquals(expectedResult, result);
     }
 
     private static Stream<Arguments> arguments() {
@@ -139,3 +134,13 @@ public class FinanceManagerTest {
                                 "}"));
     }
 }
+
+        Gson gson = new Gson();
+        String result = gson.toJson(maxCategoryTest);
+        MaxCategory maxCategoryExpected = new MaxCategory("одежда", 500);
+        maxCategoryExpected.setMaxYearCategory("одежда", 500);
+        maxCategoryExpected.setMaxMonthCategory("еда", 300);
+        maxCategoryExpected.setMaxDayCategory("еда", 300);
+        String resultExpected = gson.toJson(maxCategoryExpected);
+        Assertions.assertEquals(resultExpected, result);
+    }
